@@ -1,4 +1,5 @@
 ProofAI | Digital Trust Layer
+Deployed website:[ProofAI](https://abezux.github.io/proofai/)
 Hosted Prototype: [ProofAI Cloud Run](https://proofai-api-1006424774825.us-central1.run.app)
 Code Repository: [GitHub Repository](https://github.com/Abezux/proofai.git)
 <img width="1920" height="921" alt="{8D622E06-B69B-49DE-BEA4-525113BF7A92}" src="https://github.com/user-attachments/assets/6721a67b-1da7-40d2-bc81-894efb3abacb" />
