@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProofAI | Digital Trust Layer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyan: { 400: '#22d3ee', 500: '#06b6d4' },
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scan': 'scan 2s linear infinite',
+                    },
+                    keyframes: {
+                        scan: {
+                            '0%': { top: '0%' },
+                            '100%': { top: '100%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border:hover {
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #22d3ee;
+            box-shadow: 0 0 10px #22d3ee;
+            animation: scan 1.5s linear infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-300 font-sans selection:bg-cyan-500 selection:text-black">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                    <i class="fa-solid fa-fingerprint text-white text-sm"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-white">Proof<span class="text-cyan-400">AI</span></h1>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-mono text-cyan-500/80">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-circle text-[6px] animate-pulse"></i> SYSTEM ACTIVE</span>
+                <span class="opacity-50">|</span>
+                <span>V 1.0.0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-12 px-6 max-w-5xl mx-auto">
+        
+        <!-- Hero Section -->
+        <div id="upload-zone" class="text-center transition-all duration-500">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Verify Digital Truth</h2>
+            <p class="text-slate-400 mb-10 max-w-xl mx-auto text-lg">
+                Upload contracts, invoices, or news clippings. Our multimodal AI engine performs a forensic audit for logical and visual consistency.
+            </p>
+
+            <div class="relative group max-w-2xl mx-auto">
+                <!-- Dropzone -->
+                <input type="file" id="fileInput" class="hidden" accept=".pdf,image/*">
+                <label for="fileInput" class="glass-panel neon-border rounded-2xl p-16 cursor-pointer block transition-all duration-300 relative overflow-hidden group-hover:bg-slate-800/50">
+                    <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-20 h-20 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center mx-auto mb-6 group-hover:border-cyan-500/50 group-hover:scale-110 transition-all duration-300 shadow-xl">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-cyan-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Drop Document Here</h3>
+                        <p id="filename" class="text-slate-500 font-mono text-sm">Supports PDF, JPG, PNG</p>
+                    </div>
+                </label>
+            </div>
+
+            <button id="analyzeBtn" onclick="analyze()" class="hidden mt-8 px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all transform hover:scale-105">
+                <i class="fa-solid fa-microchip mr-2"></i> INITIATE AUDIT
+            </button>
+        </div>
+
+        <!-- Scanner / Loading -->
+        <div id="loading" class="hidden max-w-md mx-auto text-center mt-10">
+            <div class="relative w-64 h-80 mx-auto glass-panel rounded-lg border-cyan-500/30 overflow-hidden mb-6">
+                <!-- Fake document representation -->
+                <div class="p-6 space-y-4 opacity-50">
+                    <div class="h-4 bg-slate-700 rounded w-3/4"></div>
+                    <div class="h-4 bg-slate-700 rounded w-full"></div>
+                    <div class="h-4 bg-slate-700 rounded w-5/6"></div>
+                    <div class="h-32 bg-slate-800 rounded w-full mt-4"></div>
+                </div>
+                <!-- Scanning Laser -->
+                <div class="scan-line"></div>
+            </div>
+            <h3 class="text-xl text-white font-bold animate-pulse">Running Forensic Analysis...</h3>
+            <p class="text-cyan-400 font-mono text-xs mt-2">CROSS-REFERENCING LOGIC • CHECKING METADATA</p>
+        </div>
+
+        <!-- Dashboard Results -->
+        <div id="results" class="hidden transition-opacity duration-500 animate-fade-in-up">
+            
+            <!-- Top Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+                
+                <!-- Score Card -->
+                <div class="md:col-span-4 glass-panel rounded-2xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-shield-cat text-9xl text-white"></i></div>
+                    <h4 class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-4">Integrity Score</h4>
+                    
+                    <div class="relative w-40 h-40 flex items-center justify-center">
+                        <!-- SVG Ring -->
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="80" cy="80" r="70" stroke="#1e293b" stroke-width="12" fill="transparent"></circle>
+                            <circle id="score-ring" cx="80" cy="80" r="70" stroke="#22d3ee" stroke-width="12" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440" class="transition-all duration-1000 ease-out"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="score" class="text-5xl font-black text-white">--</span>
+                        </div>
+                    </div>
+                    
+                    <div id="verdict-badge" class="mt-6 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-slate-800 text-white border border-slate-700">
+                        Calculating...
+                    </div>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="md:col-span-8 glass-panel rounded-2xl p-8 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-cyan-400"></i> Executive Summary
+                    </h3>
+                    <p id="summary" class="text-slate-300 text-lg leading-relaxed">
+                        --
+                    </p>
+                    
+                    <div class="mt-6 pt-6 border-t border-white/10">
+                        <h4 class="text-xs font-mono text-red-400 uppercase mb-3"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Detected Risks</h4>
+                        <div id="risk-tags" class="flex flex-wrap gap-2">
+                            <!-- Tags injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Log -->
+            <div class="glass-panel rounded-2xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-white">Forensic Audit Log</h3>
+                    <span class="text-xs font-mono text-slate-500">GEMINI-1.5-PRO LOGS</span>
+                </div>
+                
+                <div id="audit-log" class="space-y-0 divide-y divide-white/5 bg-slate-900/50 rounded-lg overflow-hidden border border-white/5">
+                    <!-- Logs injected via JS -->
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="location.reload()" class="text-slate-500 hover:text-white text-sm transition-colors">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Analyze Another Document
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+                // Determine the backend URL depending on where we're running
+        const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        const BACKEND_URL = isLocal
+            ? "http://localhost:8000/analyze"  // local testing
+            : "https://proofai-api-1006424774825.us-central1.run.app/analyze";  // your deployed backend
+
+        const fileInput = document.getElementById('fileInput');
+        
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                const name = e.target.files[0].name;
+                document.getElementById('filename').innerText = name;
+                document.getElementById('filename').classList.add('text-cyan-400', 'font-bold');
+                
+                const btn = document.getElementById('analyzeBtn');
+                btn.classList.remove('hidden');
+                btn.classList.add('animate-bounce-short'); // visual cue
+            }
+        });
+
+        async function analyze() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Transition UI
+            document.getElementById('upload-zone').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Fetch from Backend
+                const res = await fetch('https://proofai-api-1006424774825.us-central1.run.app/analyze', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if(data.error) throw new Error(data.error);
+
+                renderDashboard(data);
+
+            } catch (err) {
+                alert("Analysis Failed: " + err);
+                location.reload();
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+
+            // 1. Animate Score Ring
+            const score = data.trust_score || 0;
+            const radius = 70;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (score / 100) * circumference;
+            
+            const ring = document.getElementById('score-ring');
+            ring.style.strokeDashoffset = offset;
+            
+            // Color Logic
+            let color = '#22d3ee'; // Cyan (Default/Mid)
+            let badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
+            
+            if(score >= 85) {
+                color = '#4ade80'; // Green
+                badgeColor = 'bg-green-500/20 text-green-400 border-green-500/50';
+            } else if (score <= 50) {
+                color = '#f87171'; // Red
+                badgeColor = 'bg-red-500/20 text-red-400 border-red-500/50';
+            }
+            
+            ring.style.stroke = color;
+            document.getElementById('score').innerText = score;
+            document.getElementById('score').style.color = color;
+
+            // 2. Verdict & Summary
+            const verdictEl = document.getElementById('verdict-badge');
+            verdictEl.innerText = data.verdict || "Unknown";
+            verdictEl.className = `mt-6 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wide border backdrop-blur-md shadow-lg ${badgeColor}`;
+            
+            document.getElementById('summary').innerText = data.summary;
+
+            // 3. Risk Tags
+            const riskContainer = document.getElementById('risk-tags');
+            riskContainer.innerHTML = '';
+            const risks = data.risk_flags || [];
+            if(risks.length === 0 || (risks.length === 1 && risks[0] === "N/A")) {
+                riskContainer.innerHTML = '<span class="text-green-500 text-sm font-mono">No Anomalies Detected</span>';
+            } else {
+                risks.forEach(risk => {
+                    riskContainer.innerHTML += `
+                        <span class="px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded font-mono">
+                            ${risk}
+                        </span>`;
+                });
+            }
+
+            // 4. Detailed Audit Log
+            const logContainer = document.getElementById('audit-log');
+            logContainer.innerHTML = '';
+            
+            (data.analysis || []).forEach(item => {
+                const passed = item.status.toString().toLowerCase().includes('pass');
+                const icon = passed ? 'fa-check text-green-400' : 'fa-xmark text-red-400';
+                const statusColor = passed ? 'text-green-400' : 'text-red-400';
+                const bg = passed ? '' : 'bg-red-500/5';
+
+                logContainer.innerHTML += `
+                    <div class="p-4 flex items-start gap-4 ${bg} hover:bg-white/5 transition-colors">
+                        <div class="mt-1 w-6 text-center"><i class="fa-solid ${icon}"></i></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-white text-sm">${item.check}</span>
+                                <span class="font-mono text-xs ${statusColor} uppercase border border-white/10 px-2 rounded">${item.status}</span>
+                            </div>
+                            <p class="text-slate-400 text-sm leading-relaxed">${item.details}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
